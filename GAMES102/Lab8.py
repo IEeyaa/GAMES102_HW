@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial import Voronoi, voronoi_plot_2d, Delaunay, delaunay_plot_2d
 
-n = 30
+n = 20
 
 
 # 在正方形中随机生成点
@@ -121,11 +121,22 @@ def Lloyd(raw_points):
                     else:
                         temp_region.append(all_points[i])
 
-                midPoint_x = np.mean([region[0] for region in temp_region])
-                midPoint_y = np.mean([region[1] for region in temp_region])
-                point_id = vor.point_region[region_id - 1] - 1
+                point_id = vor.point_region[region_id - 1]
                 if point_id < n:
-                    temp_points[point_id] = [midPoint_x, midPoint_y]
+                    totalArea = 0
+                    totalX = 0
+                    totalY = 0
+                    for i in range(len(temp_region) - 1):
+                        a = temp_region[i]
+                        b = temp_region[i + 1]
+                        area = 0.5 * (a[0] * b[1] - b[0] * a[1])
+                        x = (a[0] + b[0]) / 3
+                        y = (a[1] + b[1]) / 3
+                        totalArea += area
+                        totalX += area * x
+                        totalY += area * y
+                    print([totalX / totalArea, totalY / totalArea])
+                    temp_points[point_id] = [totalX / totalArea, totalY / totalArea]
     vor = Voronoi(temp_points)
     tri = Delaunay(temp_points)
 

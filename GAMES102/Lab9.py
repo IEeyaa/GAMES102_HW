@@ -31,8 +31,8 @@ import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 # 加载OBJ模型
-# obj = "HW6_models/Nefertiti_face.obj"  # 替换为你的OBJ文件路径
-obj = "HW6_models/Balls.obj"  # 替换为你的OBJ文件路径
+obj = "HW6_models/Nefertiti_face.obj"  # 替换为你的OBJ文件路径
+# obj = "HW6_models/Balls.obj"  # 替换为你的OBJ文件路径
 vertices = []
 edges = []
 faces = []
@@ -148,7 +148,7 @@ def draw():
 def iteration():
     # 简单的边界判定法，邻域三角形个数较少（在这里 <= 3）
     count_time = 1
-    count_max = 250
+    count_max = 0
     Y = np.zeros(shape=(4, 1), dtype=float)
     Y[3][0] = 1
     # 创建一个优先队列

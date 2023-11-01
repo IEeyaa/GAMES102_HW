@@ -4,7 +4,7 @@
 
 import matplotlib.pyplot as plt
 
-alpha = 0.1
+alpha = 0.5
 
 
 class ClickPlot:

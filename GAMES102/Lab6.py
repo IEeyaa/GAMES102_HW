@@ -7,8 +7,8 @@ import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 # 加载OBJ模型
-# obj = "HW6_models/Nefertiti_face.obj"  # 替换为你的OBJ文件路径
-obj = "HW6_models/Balls.obj"  # 替换为你的OBJ文件路径
+obj = "HW6_models/Nefertiti_face.obj"  # 替换为你的OBJ文件路径
+# obj = "HW6_models/Balls.obj"  # 替换为你的OBJ文件路径
 vertices = []
 faces = []
 # 创建一个空字典用于存储顶点的邻域信息
@@ -86,7 +86,7 @@ def draw():
 
 def iteration():
     # 简单的边界判定法，邻域三角形个数较少（在这里 <= 3）
-    count_time = 100
+    count_time = 50
     for i in range(0, count_time):
         if i % 10 == 0:
             print("iteration: " + str(i))
