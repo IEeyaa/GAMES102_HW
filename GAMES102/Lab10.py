@@ -55,23 +55,23 @@ weights = []
 """
 
 # 点云数据
-# obj = "HW10_models/Arma_20.obj"  # 替换为你的OBJ文件路径
-obj = "HW10_models/kitten_04.obj"  # 替换为你的OBJ文件路径
+obj = "HW10_models/Arma_04.obj"  # 替换为你的OBJ文件路径
+# obj = "HW10_models/kitten_04.obj"  # 替换为你的OBJ文件路径
 # obj = "HW10_models/dragon_04.obj"  # 替换为你的OBJ文件路径
 
-# 可调节参数
+# 外部定义参数
 alpha = 0.5
 # 整体缩放比例尺
-update_index = 1.0
+update_index = 10
 # Marching Cubes 范围
-MC = np.mgrid[-30:40:2, 0:100:2, -30:40:2]
+MC = np.mgrid[-15:15:0.5, -15:15:0.5, -15:15:0.5]
 # 采样比例（如果是10则采样原点云中1/10的点数）
-cluster_number = 1
+cluster_number = 2
 # 法向量相关参数
 radius = 5.0
 max_nn = 10
 # 法向量估计方式: 1确定相机，2根据周围点，3确定轴线
-methods = 2
+methods = 3
 
 
 def load_data():
@@ -120,7 +120,7 @@ def draw():
     z = [point[2] for point in normals]
 
     # 绘制点
-    ax.scatter(x, y, z, c='r', marker='.', s=2, linewidth=0, alpha=1, cmap='spectral')
+    ax.scatter(x, y, z, c='r', marker='*', s=2, linewidth=0, alpha=1, cmap='spectral')
 
     n = int(len(vertices_temp[0]) / 2)
     # 绘制法向量方向向量
@@ -129,7 +129,7 @@ def draw():
         x_end, y_end, z_end = vertices_temp[0][i + n]  # 终点为顶点坐标加上法向量
 
         ax.quiver(x_start, y_start, z_start, x_end - x_start, y_end - y_start, z_end - z_start, color='r', pivot='tail',
-                  linewidth=0.5)
+                  linewidth=1.0)
 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
@@ -167,12 +167,12 @@ def create_normal():
         pcd.orient_normals_towards_camera_location(tot)
     elif methods == 2:
         # 根据周围点的情况进行方向判断
-        pcd.orient_normals_consistent_tangent_plane(1)
+        pcd.orient_normals_consistent_tangent_plane(3)
     else:
         # 沿坐标轴
         pcd.orient_normals_to_align_with_direction(orientation_reference=np.array([1.0, 0, 0]))
     for i, item in enumerate(pcd.normals):
-        normals_all.append(vertices[i] + alpha * np.asarray(item))
+        normals_all.append(vertices[i] - alpha * np.asarray(item))
 
 
 # 重建

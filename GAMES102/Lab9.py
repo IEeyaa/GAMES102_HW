@@ -31,8 +31,8 @@ import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 # 加载OBJ模型
-obj = "HW6_models/Nefertiti_face.obj"  # 替换为你的OBJ文件路径
-# obj = "HW6_models/Balls.obj"  # 替换为你的OBJ文件路径
+# obj = "HW6_models/Nefertiti_face.obj"  # 替换为你的OBJ文件路径
+obj = "HW6_models/Balls.obj"  # 替换为你的OBJ文件路径
 vertices = []
 edges = []
 faces = []
@@ -46,7 +46,7 @@ boundary_edges = set()
 # 存储边界点情况
 boundary_points = []
 # 步长
-alpha = 0.1
+alpha = 0.2
 
 
 class Edge:
@@ -75,9 +75,9 @@ class Edge:
 
     def count_cost(self):
         if (self.points[0], self.points[1]) in boundary_edges:
-            return 0.1
+            return 514
         elif self.points[0] in boundary_points[0] or self.points[1] in boundary_points[0]:
-            return 0.05
+            return 114
         dot1 = np.transpose(self.new_point_base) @ (Q_all[self.points[0]] + Q_all[self.points[1]])
         dot2 = dot1 @ self.new_point_base
         return dot2[0][0]
@@ -148,7 +148,7 @@ def draw():
 def iteration():
     # 简单的边界判定法，邻域三角形个数较少（在这里 <= 3）
     count_time = 1
-    count_max = 0
+    count_max = 450
     Y = np.zeros(shape=(4, 1), dtype=float)
     Y[3][0] = 1
     # 创建一个优先队列
@@ -174,7 +174,21 @@ def iteration():
             point2_index = top_edge.points[1]
             if vertices[point1_index] is None or vertices[point2_index] is None:
                 print("error!")
-            new_point = top_edge.new_point
+
+            if point1_index in boundary_points[0] and point2_index in boundary_points[0]:
+                continue
+
+            # elif point1_index in boundary_points[0]:
+            #     new_point = vertices[point1_index]
+            #
+            # elif point2_index in boundary_points[0]:
+            #     new_point = vertices[point2_index]
+            #     temp = point1_index
+            #     point1_index = point2_index
+            #     point2_index = temp
+
+            else:
+                new_point = top_edge.new_point
 
             # 更新点
             vertices[point1_index] = new_point

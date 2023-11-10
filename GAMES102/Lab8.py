@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial import Voronoi, voronoi_plot_2d, Delaunay, delaunay_plot_2d
 
-n = 20
+n = 50
 
 
 # 在正方形中随机生成点
 def generate_data():
     # 生成随机点
-    # np.random.seed(0)  # 设置随机种子以确保结果可重复
+    np.random.seed(0)  # 设置随机种子以确保结果可重复
     random_points = np.random.rand(n, 2) * 2 - 1  # 在(-1, 1)正方形内生成随机点
 
     # 正方形的四个顶点
@@ -25,6 +25,17 @@ def generate_data():
 
 def outsideBox(point):
     return point[0] * point[0] > 1 or point[1] * point[1] > 1
+
+
+def sort_points_clockwise(points_raw):
+    # 计算多边形的中心点
+    center_x = np.mean([point[0] for point in points_raw])
+    center_y = np.mean([point[1] for point in points_raw])
+
+    # 使用中心点和每个点的极角来排序顶点
+    sorted_points = sorted(points_raw, key=lambda p: np.arctan2(p[1] - center_y, p[0] - center_x))
+
+    return sorted_points
 
 
 def line_intersection(p1, p2, p3, p4):
@@ -73,7 +84,7 @@ def line_intersection(p1, p2, p3, p4):
     return None
 
 
-iteration = 10
+iteration = 100
 
 
 # Lloyd算法，在每一轮迭代中更新points点到对应的Delaunay多边形的中心
@@ -88,23 +99,24 @@ def Lloyd(raw_points):
     delaunay_plot_2d(tri)
     # 开始迭代
     for i in range(0, iteration):
+
         # 创建Voronoi图
         vor = Voronoi(temp_points)
         all_points = np.array(vor.vertices)
-
         # 对每一个Regions进行操作
         for region_id, region in enumerate(vor.regions):
             if len(region) > 0 and -1 not in region:
                 temp_region = []
-                # 检测多出来的边
+                # 检测每一个Region
                 for i in region:
+                    # 如果点出去了
                     if outsideBox(all_points[i]):
                         # 加入边界交叉点
                         interaction_points = [sublist[0] if sublist[1] == i
                                               else sublist[1]
                                               for sublist in vor.ridge_vertices if i in sublist]
                         interaction_points = [x for x in interaction_points if
-                                              x != -1 and not outsideBox(all_points[x])]
+                                              x != -1]
                         for inter_point_index in interaction_points:
                             point1 = all_points[i]
                             point2 = all_points[inter_point_index]
@@ -116,27 +128,32 @@ def Lloyd(raw_points):
                                     if point_inter is None:
                                         point_inter = line_intersection(point1, point2, [1, -1], [-1, -1])
                                         if point_inter is None:
-                                            continue
-                            temp_region.append(point_inter)
+                                            print(114514)
+                            if point_inter is not None:
+                                temp_region.append(point_inter)
                     else:
-                        temp_region.append(all_points[i])
+                        if all_points[i] is not None:
+                            temp_region.append(all_points[i])
+                # totalArea = 0
+                # totalX = 0
+                # totalY = 0
+                # temp_region = sort_points_clockwise(temp_region)
+                # for i in range(len(temp_region)):
+                #     a = temp_region[i]
+                #     b = temp_region[(i + 1) % len(temp_region)]
+                #     area = 0.5 * (a[0] * b[1] - b[0] * a[1])
+                #     x = (a[0] + b[0]) / 3
+                #     y = (a[1] + b[1]) / 3
+                #     totalArea += area
+                #     totalX += area * x
+                #     totalY += area * y
+                # if totalArea == 0:
+                #     continue
 
-                point_id = vor.point_region[region_id - 1]
-                if point_id < n:
-                    totalArea = 0
-                    totalX = 0
-                    totalY = 0
-                    for i in range(len(temp_region) - 1):
-                        a = temp_region[i]
-                        b = temp_region[i + 1]
-                        area = 0.5 * (a[0] * b[1] - b[0] * a[1])
-                        x = (a[0] + b[0]) / 3
-                        y = (a[1] + b[1]) / 3
-                        totalArea += area
-                        totalX += area * x
-                        totalY += area * y
-                    print([totalX / totalArea, totalY / totalArea])
-                    temp_points[point_id] = [totalX / totalArea, totalY / totalArea]
+
+                for index, item in enumerate(vor.point_region):
+                    if item == region_id:
+                        temp_points[index] = temp_points[index] * 0.9 + np.nanmean(temp_region, axis=0) * 0.1
     vor = Voronoi(temp_points)
     tri = Delaunay(temp_points)
 
